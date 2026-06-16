@@ -20,21 +20,19 @@ export function SongView({ initialSong }: { initialSong: Song }) {
   const [song, setSong] = useState(initialSong);
   const inFlight = song.status === "pending" || song.status === "processing";
 
+  async function checkStatus() {
+    try {
+      const res = await fetch(`/api/songs/${song.id}`, { cache: "no-store" });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json?.data) setSong((prev) => ({ ...prev, ...json.data }));
+    } catch {}
+  }
+
   // Polling drives status updates server-side — no cron, no webhook.
   useEffect(() => {
     if (!inFlight) return;
-    const timer = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/songs/${song.id}`);
-        if (!res.ok) return;
-        const json = await res.json();
-        if (json?.data) {
-          setSong((prev) => ({ ...prev, ...json.data }));
-        }
-      } catch {
-        // Transient network error — next tick retries.
-      }
-    }, POLL_INTERVAL_MS);
+    const timer = setInterval(checkStatus, POLL_INTERVAL_MS);
     return () => clearInterval(timer);
   }, [inFlight, song.id]);
 
@@ -54,6 +52,13 @@ export function SongView({ initialSong }: { initialSong: Song }) {
           <p className="text-muted-foreground" style={{ fontSize: "var(--text-body)" }}>
             Generating your song… this usually takes a minute or two.
           </p>
+          <button
+            type="button"
+            onClick={checkStatus}
+            className="text-tertiary underline underline-offset-2 text-sm mt-1 hover:text-secondary transition-colors"
+          >
+            Already done? Check now
+          </button>
         </div>
       )}
 
