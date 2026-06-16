@@ -9,7 +9,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export function AudioPlayer({ src }: { src: string }) {
+export function AudioPlayer({ src, compact }: { src: string; compact?: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -52,7 +52,7 @@ export function AudioPlayer({ src }: { src: string }) {
   }
 
   return (
-    <div className="audio-player card">
+    <div className={compact ? "audio-player" : "audio-player card"}>
       <audio ref={audioRef} src={src} preload="metadata" />
       <button
         type="button"

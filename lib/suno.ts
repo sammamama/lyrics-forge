@@ -121,6 +121,7 @@ interface SunoCreateData {
 interface SunoTrack {
   audioUrl?: string | null;
   streamAudioUrl?: string | null;
+  imageUrl?: string | null;
 }
 
 interface SunoTaskDetails {
@@ -160,14 +161,17 @@ export async function getSongStatus(
     `/api/v1/generate/record-info?taskId=${encodeURIComponent(jobId)}`,
   );
   console.log("[suno] raw response:", JSON.stringify(data, null, 2));
-  const withAudio = (data.response?.sunoData ?? []).filter((t) => t.audioUrl);
+  const tracks = data.response?.sunoData ?? [];
+  const withAudio = tracks.filter((t) => t.audioUrl);
   const audioUrl = withAudio[0]?.audioUrl ?? undefined;
   const audioUrl2 = withAudio[1]?.audioUrl ?? undefined;
+  const imageUrl = tracks[0]?.imageUrl ?? undefined;
   const status = mapStatus(data.status, Boolean(audioUrl));
-  console.log("[suno] mapped →", status, "| v1:", audioUrl, "| v2:", audioUrl2);
+  console.log("[suno] mapped →", status, "| v1:", audioUrl, "| v2:", audioUrl2, "| img:", imageUrl);
   return {
     status,
     audioUrl: status === "done" ? audioUrl : undefined,
     audioUrl2: status === "done" ? audioUrl2 : undefined,
+    imageUrl: status === "done" ? imageUrl : undefined,
   };
 }

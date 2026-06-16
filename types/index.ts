@@ -44,4 +44,5 @@ export interface SongStatusResult {
   status: SongStatus;
   audioUrl?: string;
   audioUrl2?: string;
+  imageUrl?: string;
 }

@@ -21,9 +21,10 @@ model Song {
   title     String     @default("Untitled")
   prompt    String
   lyrics    String
-  sunoJobId  String?
-  audioUrl   String?
-  audioUrl2  String?
+  sunoJobId String?
+  audioUrl  String?
+  audioUrl2 String?
+  imageUrl  String?
   status    SongStatus @default(pending)
   createdAt DateTime   @default(now())
 
