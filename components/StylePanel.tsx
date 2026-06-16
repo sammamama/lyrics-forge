@@ -59,7 +59,9 @@ function SectionLabel({ children }: { children: string }) {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Info className="size-3.5 text-neutral-400 cursor-default shrink-0" />
+            <span className="inline-flex cursor-default shrink-0" aria-label="Required field">
+              <Info className="size-3.5 text-neutral-400" aria-hidden />
+            </span>
           </TooltipTrigger>
           <TooltipContent side="top">This is a necessary selection</TooltipContent>
         </Tooltip>
