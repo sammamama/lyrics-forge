@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Info } from "lucide-react";
 import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useWorkspaceStore } from "@/lib/store";
 import { Separator } from "./ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const GENRES = [
   "pop",
@@ -46,8 +52,21 @@ const THEMES = [
 
 const TEMPOS = ["slow", "mid-tempo", "fast"];
 
-const DEFAULT_STRUCTURE =
-  "Verse 1\nChorus\nVerse 2\nChorus\nBridge\nChorus";
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <h3 className="style-label">{children}</h3>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="size-3.5 text-neutral-400 cursor-default shrink-0" />
+          </TooltipTrigger>
+          <TooltipContent side="top">This is a necessary selection</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>
+  );
+}
 
 export function StylePanel() {
   const router = useRouter();
@@ -56,6 +75,11 @@ export function StylePanel() {
   const [error, setError] = useState<string | null>(null);
 
   const tempoIndex = Math.max(0, TEMPOS.indexOf(store.tempo));
+  const canGenerate =
+    !!store.lyrics &&
+    store.genres.length > 0 &&
+    store.moods.length > 0 &&
+    store.themes.length > 0;
 
   function toastOutOfCredits() {
     toast.error("You're out of credits", {
@@ -68,7 +92,7 @@ export function StylePanel() {
   }
 
   async function generateSong() {
-    if (busy || !store.lyrics) return;
+    if (busy || !canGenerate) return;
     setBusy(true);
     setError(null);
 
@@ -126,7 +150,7 @@ export function StylePanel() {
     <div className="bg-neutral-900 backdrop-blur-lg">
       <div className="style-sections">
         <section className="bg-neutral-800 p-3 rounded-xl">
-          <h3 className="style-label">Genre</h3>
+          <SectionLabel>Genre</SectionLabel>
           <Separator className="mb-3 bg-neutral-300" />
           <div className="chip-row ">
             {GENRES.map((genre) => (
@@ -142,7 +166,7 @@ export function StylePanel() {
         </section>
           
         <section className="bg-neutral-800 p-3 rounded-xl">
-          <h3 className="style-label font-bold">Mood</h3>
+          <SectionLabel>Mood</SectionLabel>
           <Separator className="mb-3 bg-neutral-300" />
           <div className="mood-grid font-extralight">
             {MOODS.map((mood) => (
@@ -158,7 +182,7 @@ export function StylePanel() {
         </section>
 
         <section className="bg-neutral-800 p-3 rounded-xl">
-          <h3 className="style-label">Tempo</h3>
+          <SectionLabel>Tempo</SectionLabel>
           <Separator className="mb-3 bg-neutral-300" />
           <input
             type="range"
@@ -184,7 +208,7 @@ export function StylePanel() {
         </section>
 
         <section className="bg-neutral-800 p-3 rounded-xl">
-          <h3 className="style-label">Themes</h3>
+          <SectionLabel>Themes</SectionLabel>
           <Separator className="mb-3 bg-neutral-300" />
           <div className="chip-row">
             {THEMES.map((theme) => (
@@ -199,25 +223,6 @@ export function StylePanel() {
           </div>
         </section>
 
-        <details className="structure-section">
-          <summary className="style-label">Song structure</summary>
-          <p className="structure-hint">One section per line.</p>
-          <Textarea
-            className="resize-none bg-subtle"
-            rows={6}
-            value={
-              store.structure ? store.structure.join("\n") : DEFAULT_STRUCTURE
-            }
-            onChange={(e) => {
-              const sections = e.target.value
-                .split("\n")
-                .map((s) => s.trim())
-                .filter(Boolean);
-              store.setStructure(sections.length ? sections : null);
-            }}
-            aria-label="Song structure"
-          />
-        </details>
       </div>
 
       <div className="style-cta">
@@ -225,7 +230,7 @@ export function StylePanel() {
         <Button
           size="lg"
           className="w-full h-11"
-          disabled={busy || !store.lyrics}
+          disabled={busy || !canGenerate}
           onClick={generateSong}
         >
           {busy ? "Generating…" : "Generate Song · 1 credit"}

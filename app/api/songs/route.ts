@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
       take: 50,
-      select: { id: true, title: true, status: true, createdAt: true },
+      select: { id: true, title: true, status: true, audioUrl: true, audioUrl2: true, lyrics: true, createdAt: true },
     });
 
     return NextResponse.json({ data: { songs }, error: null });

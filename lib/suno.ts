@@ -159,12 +159,15 @@ export async function getSongStatus(
   const data = await sunoFetch<SunoTaskDetails>(
     `/api/v1/generate/record-info?taskId=${encodeURIComponent(jobId)}`,
   );
-  const audioUrl =
-    data.response?.sunoData?.find((track) => track.audioUrl)?.audioUrl ??
-    undefined;
+  console.log("[suno] raw response:", JSON.stringify(data, null, 2));
+  const withAudio = (data.response?.sunoData ?? []).filter((t) => t.audioUrl);
+  const audioUrl = withAudio[0]?.audioUrl ?? undefined;
+  const audioUrl2 = withAudio[1]?.audioUrl ?? undefined;
   const status = mapStatus(data.status, Boolean(audioUrl));
+  console.log("[suno] mapped →", status, "| v1:", audioUrl, "| v2:", audioUrl2);
   return {
     status,
     audioUrl: status === "done" ? audioUrl : undefined,
+    audioUrl2: status === "done" ? audioUrl2 : undefined,
   };
 }

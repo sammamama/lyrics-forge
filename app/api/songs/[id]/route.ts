@@ -36,7 +36,11 @@ export async function GET(
         if (result.status === "done" && result.audioUrl) {
           song = await db.song.update({
             where: { id },
-            data: { status: SongStatus.done, audioUrl: result.audioUrl },
+            data: {
+              status: SongStatus.done,
+              audioUrl: result.audioUrl,
+              audioUrl2: result.audioUrl2 ?? null,
+            },
           });
         } else if (result.status === "failed") {
           // Atomic in-flight → failed transition: only the request that wins
