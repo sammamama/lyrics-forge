@@ -13,7 +13,7 @@ interface Song {
   status: "pending" | "processing" | "done" | "failed";
 }
 
-const POLL_INTERVAL_MS = 5_000;
+const POLL_INTERVAL_MS = 2_000;
 const WAVEFORM_BARS = 24;
 
 export function SongView({ initialSong }: { initialSong: Song }) {
