@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   const songs = await db.song.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
-    select: { id: true, title: true, status: true, createdAt: true, audioUrl: true, imageUrl: true },
+    select: { id: true, title: true, status: true, createdAt: true, audioUrl: true, audioUrl2: true, imageUrl: true },
   });
 
   return (

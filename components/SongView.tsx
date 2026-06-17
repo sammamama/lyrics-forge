@@ -29,7 +29,6 @@ export function SongView({ initialSong }: { initialSong: Song }) {
     } catch {}
   }
 
-  // Polling drives status updates server-side — no cron, no webhook.
   useEffect(() => {
     if (!inFlight) return;
     const timer = setInterval(checkStatus, POLL_INTERVAL_MS);

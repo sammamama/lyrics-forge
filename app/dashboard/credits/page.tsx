@@ -22,7 +22,7 @@ export default async function CreditsPage() {
         <p className="text-muted-foreground" style={{ fontSize: "var(--text-body)" }}>
           You have{" "}
           <span className="text-primary font-medium">{balance}</span> credit
-          {balance === 1 ? "" : "s"}. Credit packs are coming soon.
+          {balance === 1 ? "" : "s"}. Adding credit packs soon.
         </p>
       </div>
     </div>

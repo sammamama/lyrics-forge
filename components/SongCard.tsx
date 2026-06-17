@@ -10,6 +10,7 @@ export interface SongCardProps {
   status: "pending" | "processing" | "done" | "failed";
   createdAt: Date | string;
   audioUrl?: string | null;
+  audioUrl2?: string | null;
   imageUrl?: string | null;
 }
 
@@ -20,7 +21,7 @@ const STATUS_LABEL: Record<SongCardProps["status"], string> = {
   failed: "Failed",
 };
 
-export function SongCard({ id, title, status, createdAt, audioUrl, imageUrl }: SongCardProps) {
+export function SongCard({ id, title, status, createdAt, audioUrl, audioUrl2, imageUrl }: SongCardProps) {
   const date = new Date(createdAt).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -66,17 +67,42 @@ export function SongCard({ id, title, status, createdAt, audioUrl, imageUrl }: S
 
         {isDone && audioUrl && (
           <div className="song-card-actions">
-            <AudioPlayer src={audioUrl} compact />
-            <a
-              href={audioUrl}
-              download
-              className="song-card-download"
-              aria-label="Download song"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Download className="size-3.5" />
-              Download
-            </a>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+              <div>
+                <span className="text-tertiary" style={{ fontSize: "var(--text-caption)", fontWeight: 500 }}>V1</span>
+                <AudioPlayer src={audioUrl} compact />
+              </div>
+              {audioUrl2 && (
+                <div>
+                  <span className="text-tertiary" style={{ fontSize: "var(--text-caption)", fontWeight: 500 }}>V2</span>
+                  <AudioPlayer src={audioUrl2} compact />
+                </div>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: "var(--space-3)" }}>
+              <a
+                href={audioUrl}
+                download
+                className="song-card-download"
+                aria-label="Download V1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Download className="size-3.5" />
+                V1
+              </a>
+              {audioUrl2 && (
+                <a
+                  href={audioUrl2}
+                  download
+                  className="song-card-download"
+                  aria-label="Download V2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Download className="size-3.5" />
+                  V2
+                </a>
+              )}
+            </div>
           </div>
         )}
       </div>

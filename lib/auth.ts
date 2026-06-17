@@ -25,7 +25,7 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           await db.credits.create({
-            data: { userId: user.id, balance: 0 },
+            data: { userId: user.id, balance: 3 },
           });
         },
       },

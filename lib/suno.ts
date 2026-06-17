@@ -48,6 +48,7 @@ async function sunoFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
   const res = await fetch(`${baseUrl()}${path}`, {
     ...init,
+    cache: "no-store",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",

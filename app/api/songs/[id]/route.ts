@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { SongStatus } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getSongStatus } from "@/lib/suno";
 import { refundCredit } from "@/lib/credits";
+import { persistSongMedia } from "@/lib/storage";
 
 const IN_FLIGHT: SongStatus[] = [SongStatus.pending, SongStatus.processing];
 
@@ -29,7 +31,6 @@ export async function GET(
       );
     }
 
-    // The song page polls this route; it drives status updates — no cron.
     if (IN_FLIGHT.includes(song.status) && song.sunoJobId) {
       try {
         const result = await getSongStatus(song.sunoJobId);
@@ -40,11 +41,20 @@ export async function GET(
               status: SongStatus.done,
               audioUrl: result.audioUrl,
               audioUrl2: result.audioUrl2 ?? null,
+              imageUrl: result.imageUrl ?? null,
             },
           });
+          const completedSong = song;
+          after(() =>
+            persistSongMedia(
+              completedSong.id,
+              completedSong.userId,
+              completedSong.audioUrl,
+              completedSong.audioUrl2,
+              completedSong.imageUrl,
+            ),
+          );
         } else if (result.status === "failed") {
-          // Atomic in-flight → failed transition: only the request that wins
-          // this update refunds, so concurrent polls can't double-refund.
           const flipped = await db.song.updateMany({
             where: { id, status: { in: IN_FLIGHT } },
             data: { status: SongStatus.failed },
@@ -54,9 +64,7 @@ export async function GET(
           }
           song = { ...song, status: SongStatus.failed };
         }
-        // Still pending/processing: leave the row alone, client keeps polling.
       } catch (err) {
-        // Transient Suno error — return current state; the next poll retries.
         console.error(`Suno status check failed for song ${id}:`, err);
       }
     }
@@ -68,6 +76,8 @@ export async function GET(
         prompt: song.prompt,
         lyrics: song.lyrics,
         audioUrl: song.audioUrl,
+        audioUrl2: song.audioUrl2,
+        imageUrl: song.imageUrl,
         status: song.status,
         createdAt: song.createdAt,
       },
