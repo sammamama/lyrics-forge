@@ -27,15 +27,6 @@ function baseUrl(): string {
   return url.replace(/\/+$/, "");
 }
 
-// sunoapi.org requires a callBackUrl on every generate call. We rely on
-// polling (GET /api/songs/[id]) for status, so the callback route is just an
-// acknowledger — see app/api/webhooks/suno/route.ts.
-function callbackUrl(): string {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  if (!appUrl) throw new Error("NEXT_PUBLIC_APP_URL is not set");
-  return `${appUrl.replace(/\/+$/, "")}/api/webhooks/suno`;
-}
-
 interface SunoEnvelope<T> {
   code: number;
   msg: string;
@@ -101,9 +92,6 @@ function mapStatus(raw: string, hasAudio: boolean): SongStatus {
     case "FIRST_SUCCESS":
       return "processing";
     case "SUCCESS":
-      return "done";
-    // The callback to our URL failed (e.g. localhost dev, where sunoapi.org
-    // can't reach us) — the track itself may still have rendered fine.
     case "CALLBACK_EXCEPTION":
       return hasAudio ? "done" : "failed";
     case "CREATE_TASK_FAILED":
@@ -145,7 +133,6 @@ export async function createSong(
       style: input.stylePrompt,
       // V4_5 caps titles at 80 chars.
       title: input.title.slice(0, 80),
-      callBackUrl: callbackUrl(),
     }),
   });
   if (!data.taskId) {

@@ -42,11 +42,14 @@ export default function SignInPage() {
   async function handleSignIn(provider: Provider) {
     setLoading(provider);
     try {
-      await signIn.social({
+      console.log("[auth] signing in with", provider);
+      const result = await signIn.social({
         provider,
         callbackURL: "/dashboard",
       });
-    } catch {
+      console.log("[auth] result:", result);
+    } catch (err) {
+      console.error("[auth] error:", err);
       setLoading(null);
     }
   }
@@ -90,13 +93,6 @@ export default function SignInPage() {
             {loading === "github" ? "Redirecting…" : "Continue with GitHub"}
           </button>
         </div>
-
-        <p
-          className="mt-6 text-center text-tertiary"
-          style={{ fontSize: "var(--text-caption)" }}
-        >
-          New here? Signing in creates your account automatically.
-        </p>
       </div>
     </main>
   );

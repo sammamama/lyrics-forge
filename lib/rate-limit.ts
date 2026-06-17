@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 
 export const LYRICS_LIMITS = {
   perMinute: 10,
-  perDayFree: 30,
+  perDayFree: 15,
   perDayPaid: 100,
 } as const;
 

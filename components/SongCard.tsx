@@ -1,8 +1,28 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
 import { Download, Music } from "lucide-react";
 import { AudioPlayer } from "@/components/AudioPlayer";
+
+function useDownload() {
+  return useCallback(async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  }, []);
+}
 
 export interface SongCardProps {
   id: string;
@@ -22,6 +42,7 @@ const STATUS_LABEL: Record<SongCardProps["status"], string> = {
 };
 
 export function SongCard({ id, title, status, createdAt, audioUrl, audioUrl2, imageUrl }: SongCardProps) {
+  const download = useDownload();
   const date = new Date(createdAt).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -80,27 +101,25 @@ export function SongCard({ id, title, status, createdAt, audioUrl, audioUrl2, im
               )}
             </div>
             <div style={{ display: "flex", gap: "var(--space-3)" }}>
-              <a
-                href={audioUrl}
-                download
+              <button
+                type="button"
                 className="song-card-download"
                 aria-label="Download V1"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); download(audioUrl, `${title}-v1.mp3`); }}
               >
                 <Download className="size-3.5" />
                 V1
-              </a>
+              </button>
               {audioUrl2 && (
-                <a
-                  href={audioUrl2}
-                  download
+                <button
+                  type="button"
                   className="song-card-download"
                   aria-label="Download V2"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => { e.stopPropagation(); download(audioUrl2, `${title}-v2.mp3`); }}
                 >
                   <Download className="size-3.5" />
                   V2
-                </a>
+                </button>
               )}
             </div>
           </div>

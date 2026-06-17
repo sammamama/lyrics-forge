@@ -8,8 +8,6 @@ import {
 } from "@/lib/claude";
 import { buildStylePrompt, createSong, SunoApiError } from "@/lib/suno";
 import {
-  getBalance,
-  deductCredit,
   refundCredit,
   InsufficientCreditsError,
 } from "@/lib/credits";
@@ -88,14 +86,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const balance = await getBalance(userId);
-    if (balance < 1) {
-      return NextResponse.json(
-        { data: null, error: "Insufficient credits" },
-        { status: 402 },
-      );
-    }
-
     // Canvas-edited lyrics pass straight through; otherwise generate now.
     let lyrics: string;
     let title: string;
@@ -113,24 +103,32 @@ export async function POST(req: NextRequest) {
       vocals: optionalString(body.vocals),
     });
 
-    let jobId: string;
+    // Deduct credit and create song row in a single transaction so
+    // concurrent requests cannot double-spend. Suno call happens after
+    // the credit is reserved — refund if Suno fails.
+    let songId: string;
     try {
-      ({ jobId } = await createSong({ lyrics, stylePrompt, title }));
-    } catch (err) {
-      if (err instanceof SunoApiError) {
-        console.error("Suno createSong failed:", err);
-        return NextResponse.json(
-          { data: null, error: "Music generation service unavailable" },
-          { status: 502 },
-        );
-      }
-      throw err;
-    }
+      const result = await db.$transaction(async (tx) => {
+        const updated = await tx.credits.updateMany({
+          where: { userId, balance: { gte: 1 } },
+          data: { balance: { decrement: 1 } },
+        });
+        if (updated.count === 0) {
+          throw new InsufficientCreditsError(userId);
+        }
 
-    // Deduct only after Suno accepted the job. The atomic guard in
-    // deductCredit means a concurrent spend can still win the race here.
-    try {
-      await deductCredit(userId);
+        const song = await tx.song.create({
+          data: {
+            userId,
+            title,
+            prompt: input.description,
+            lyrics,
+            status: "pending",
+          },
+        });
+        return song;
+      });
+      songId = result.id;
     } catch (err) {
       if (err instanceof InsufficientCreditsError) {
         return NextResponse.json(
@@ -141,26 +139,37 @@ export async function POST(req: NextRequest) {
       throw err;
     }
 
+    let jobId: string;
     try {
-      const song = await db.song.create({
-        data: {
-          userId,
-          title,
-          prompt: input.description,
-          lyrics,
-          sunoJobId: jobId,
-          status: "processing",
-        },
-      });
-      return NextResponse.json({
-        data: { songId: song.id, sunoJobId: jobId },
-        error: null,
-      });
+      ({ jobId } = await createSong({ lyrics, stylePrompt, title }));
     } catch (err) {
-      // Credit was deducted but no song row exists — refund.
-      await refundCredit(userId).catch(() => {});
+      // Suno failed — refund credit and mark song failed.
+      await Promise.all([
+        refundCredit(userId).catch(() => {}),
+        db.song.update({
+          where: { id: songId },
+          data: { status: "failed" },
+        }).catch(() => {}),
+      ]);
+      if (err instanceof SunoApiError) {
+        console.error("Suno createSong failed:", err);
+        return NextResponse.json(
+          { data: null, error: "Music generation service unavailable" },
+          { status: 502 },
+        );
+      }
       throw err;
     }
+
+    await db.song.update({
+      where: { id: songId },
+      data: { sunoJobId: jobId, status: "processing" },
+    });
+
+    return NextResponse.json({
+      data: { songId, sunoJobId: jobId },
+      error: null,
+    });
   } catch (err) {
     console.error("POST /api/generate failed:", err);
     return NextResponse.json(

@@ -245,7 +245,7 @@ body {
   }
 }
 
-/* .btn-primary {
+.btn-primary {
   background: var(--color-accent);
   color: #0a0a0a;
   font-size: var(--text-label);
@@ -277,7 +277,7 @@ body {
 .btn-ghost:hover {
   border-color: var(--color-border-strong);
   color: var(--color-text-primary);
-} */
+}
 
 .card {
   background: var(--color-bg-surface);
@@ -354,7 +354,7 @@ body {
 }
 .btn-primary:disabled:hover {
   background: var(--color-accent);
-} */
+}
 
 /* ---------- Status indicators ---------- */
 
@@ -625,22 +625,24 @@ body {
   z-index: 45;
 }
 
-/* History sidebar toggle — tablet/desktop only; mobile uses the Dashboard tab */
-.history-trigger {
-  display: none;
+/* History sidebar toggle + home button row */
+.workspace-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 30;
 }
-@media (min-width: 768px) {
-  .history-trigger {
-    display: inline-flex;
-    position: absolute;
-    top: var(--space-4);
-    left: var(--space-4);
-    z-index: 30;
-    color: var(--color-text-secondary);
-  }
-  .history-trigger:hover {
-    color: var(--color-text-primary);
-  }
+.workspace-topbar button,
+.workspace-topbar a {
+  color: var(--color-text-secondary);
+  transition: color var(--transition-base);
+}
+.workspace-topbar button:hover,
+.workspace-topbar a:hover {
+  color: var(--color-text-primary);
 }
 
 /* Centre — lyrics canvas */
@@ -904,17 +906,22 @@ body {
   }
 }
 
-.style-toggle {
+.mobile-style-cta {
   display: none;
 }
 @media (max-width: 767px) {
-  .style-toggle {
+  .mobile-style-cta {
     display: block;
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
-    z-index: 30;
-    background: var(--color-bg-surface);
+    width: calc(100% - var(--space-4) * 2);
+    margin: 0 auto;
+    padding: var(--space-3) var(--space-6);
+    background: #FACC15;
+    color: #000;
+    font-weight: 600;
+    font-size: var(--text-body);
+    border: none;
+    border-radius: var(--radius-lg, 12px);
+    cursor: pointer;
   }
 }
 
