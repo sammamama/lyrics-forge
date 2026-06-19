@@ -72,7 +72,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <Sidebar collapsible="none" className="dash-nav-sidebar">
         <SidebarHeader className="px-4 pt-5">
           <Link href="/dashboard" className="dash-logo">
-            Lyric<span className="text-primary">Forge</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
           </Link>
         </SidebarHeader>
         <SidebarContent>

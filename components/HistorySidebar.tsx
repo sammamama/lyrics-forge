@@ -154,7 +154,7 @@ export function HistorySidebar({ onNavigate }: { onNavigate?: () => void }) {
       <Sidebar className="w-[20%]" collapsible="offcanvas">
         <SidebarHeader className="gap-4 px-4 pt-5">
           <Link href="/dashboard" className="dash-logo">
-            Lyric<span className="text-primary">Forge</span>
+            <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
           </Link>
           <UserButton>
             <Button

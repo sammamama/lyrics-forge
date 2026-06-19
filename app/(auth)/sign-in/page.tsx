@@ -62,7 +62,7 @@ export default function SignInPage() {
             className="font-semibold"
             style={{ fontSize: "var(--text-h2)" }}
           >
-            LyricForge
+            <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
           </h1>
           <p
             className="mt-2 text-muted-foreground"

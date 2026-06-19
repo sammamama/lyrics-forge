@@ -47,12 +47,12 @@ export default function LandingWindow() {
     if (step !== activeStep.current) {
       activeStep.current = step;
       toast.dismiss();
-      const messages = ["Describe your song", "Get the lyrics", "Get the song"];
-      if (scrollingDown && step > 0) {
-        toast.success(messages[step - 1]);
-      } else if (!scrollingDown && step > 0) {
-        toast.success(messages[step - 1]);
-      }
+      const showToast = [
+        () => toast("Describe your song"),
+        () => toast.info("Get the lyrics"),
+        () => toast.success("Get the song"),
+      ];
+      if (step > 0) showToast[step - 1]();
     }
   });
 
@@ -131,7 +131,7 @@ Don't leave me`;
       <div className="sticky top-[10vh]">
         <div className="relative w-[90%] md:w-[80%] mx-auto border border-neutral-700 bg-neutral-800 rounded-xl overflow-hidden">
           {/* Golden glow from bottom center */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-40 bg-[var(--golden)] opacity-15 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-40 bg-[var(--golden)] opacity-25 blur-3xl rounded-full pointer-events-none" />
 
           {/* Window chrome */}
           <div className="flex flex-row gap-1.5 md:gap-2 w-full p-2.5 md:p-5">
@@ -145,7 +145,7 @@ Don't leave me`;
             {/* Left panel */}
             <div className="relative w-[30%] border-r border-neutral-600">
               <div className="text-lg p-2 font-bold">
-                Lyric<span className="text-primary">Forge</span>
+                <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
               </div>
               {lyricsBlock}
               <div className="absolute bottom-0 left-0 w-full pb-3">
@@ -164,7 +164,7 @@ Don't leave me`;
           {/* Mobile: single-column layout */}
           <div className="flex md:hidden flex-col border-t border-neutral-600">
             <div className="text-sm p-2 font-bold">
-              Lyric<span className="text-primary">Forge</span>
+              <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
             </div>
             {promptBar}
             {lyricsBlock}
