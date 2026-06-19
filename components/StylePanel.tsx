@@ -211,7 +211,7 @@ export function StylePanel() {
 
         <section className="bg-neutral-800 p-3 rounded-xl">
           <SectionLabel>Themes</SectionLabel>
-          <Separator className="mb-3 bg-neutral-300" />
+        <Separator className="mb-3 bg-neutral-300" />
           <div className="chip-row">
             {THEMES.map((theme) => (
               <Chip
