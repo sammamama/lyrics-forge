@@ -40,18 +40,6 @@ model Credits {
   @@map("credits")
 }
 
-model Transaction {
-  id                    String   @id @default(cuid())
-  userId                String
-  stripePaymentIntentId String   @unique
-  creditsAdded          Int
-  amountPaid            Int // cents
-  createdAt             DateTime @default(now())
-
-  @@index([userId])
-  @@map("transactions")
-}
-
 model RateLimit {
   key       String   @id // e.g. "lyrics:{userId}:m:{minuteBucket}"
   count     Int      @default(1)

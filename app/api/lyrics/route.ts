@@ -5,7 +5,7 @@ import {
   reviseLyrics,
   InvalidLyricsInputError,
 } from "@/lib/claude";
-import { checkLyricsRateLimit, isPayingUser } from "@/lib/rate-limit";
+import { checkLyricsRateLimit } from "@/lib/rate-limit";
 import type { LyricsInput } from "@/types";
 
 function toStringArray(value: unknown): string[] {
@@ -24,8 +24,7 @@ export async function POST(req: NextRequest) {
     }
     const userId = session.user.id;
 
-    const paid = await isPayingUser(userId);
-    const limit = await checkLyricsRateLimit(userId, { paid });
+    const limit = await checkLyricsRateLimit(userId);
     if (!limit.ok) {
       return NextResponse.json(
         { data: null, error: "Too many lyrics requests — slow down" },

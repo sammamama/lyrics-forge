@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getBalance } from "@/lib/credits";
 
-// Placeholder until the Stripe checkout phase — shows the live balance so the
-// nav link doesn't 404.
 export default async function CreditsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
@@ -22,7 +20,10 @@ export default async function CreditsPage() {
         <p className="text-muted-foreground" style={{ fontSize: "var(--text-body)" }}>
           You have{" "}
           <span className="text-primary font-medium">{balance}</span> credit
-          {balance === 1 ? "" : "s"}. Adding credit packs soon.
+          {balance === 1 ? "" : "s"}.
+        </p>
+        <p className="text-muted-foreground mt-2" style={{ fontSize: "var(--text-body)" }}>
+          LyricForge is free to use — credits are granted when you sign up.
         </p>
       </div>
     </div>

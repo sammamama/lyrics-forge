@@ -1,14 +1,11 @@
 import { db } from "@/lib/db";
 
 // Postgres-backed fixed-window rate limiter. Two windows guard /api/lyrics:
-// a burst window (per-minute) and a daily window whose size depends on
-// whether the user has ever purchased credits. Cost protection lives in the
-// daily cap; the burst cap just blunts scripted loops.
+// a burst window (per-minute) and a daily window.
 
 export const LYRICS_LIMITS = {
   perMinute: 10,
-  perDayFree: 15,
-  perDayPaid: 100,
+  perDay: 15,
 } as const;
 
 export interface RateLimitResult {
@@ -52,15 +49,10 @@ async function hitWindow(
  */
 export async function checkLyricsRateLimit(
   userId: string,
-  opts: { paid: boolean },
 ): Promise<RateLimitResult> {
-  const dailyLimit = opts.paid
-    ? LYRICS_LIMITS.perDayPaid
-    : LYRICS_LIMITS.perDayFree;
-
   const [minute, day] = await Promise.all([
     hitWindow(`lyrics:${userId}:m`, LYRICS_LIMITS.perMinute, 60),
-    hitWindow(`lyrics:${userId}:d`, dailyLimit, 86400),
+    hitWindow(`lyrics:${userId}:d`, LYRICS_LIMITS.perDay, 86400),
   ]);
 
   // Opportunistic cleanup of expired windows (~1% of calls).
@@ -77,11 +69,3 @@ export async function checkLyricsRateLimit(
   return { ok: true, remaining: Math.min(minute.remaining, day.remaining) };
 }
 
-/** True if the user has ever bought a credit pack (unlocks the paid daily cap). */
-export async function isPayingUser(userId: string): Promise<boolean> {
-  const tx = await db.transaction.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-  return tx !== null;
-}

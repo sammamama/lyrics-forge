@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -81,9 +80,6 @@ export function UserButton({ children }: { children?: React.ReactNode }) {
 
           <div className="flex items-center justify-between">
             <CreditsBadge />
-            <Button asChild variant="outline" size="xs">
-              <Link href="/dashboard/credits">Buy credits</Link>
-            </Button>
           </div>
 
           <Separator />

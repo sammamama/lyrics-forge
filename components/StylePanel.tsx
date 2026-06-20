@@ -85,11 +85,7 @@ export function StylePanel() {
 
   function toastOutOfCredits() {
     toast.error("You're out of credits", {
-      description: "Buy a credit pack to generate this song.",
-      action: {
-        label: "Buy credits",
-        onClick: () => router.push("/dashboard/credits"),
-      },
+      description: "You have no credits remaining.",
     });
   }
 
