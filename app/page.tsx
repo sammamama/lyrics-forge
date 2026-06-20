@@ -66,7 +66,7 @@ export default function Home() {
       <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-5 py-2.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl shadow-lg shadow-black/20 w-[90%] max-w-md">
         <span className="text-sm font-semibold text-white"><span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span></span>
         <Link
-          href="/sign-in"
+          href="/dashboard"
           className="px-4 py-1.5 rounded-full bg-white text-black text-xs font-semibold hover:bg-white/90 transition-colors"
         >
           Get Started
@@ -120,7 +120,7 @@ export default function Home() {
         </p>
         <motion.a
           ref={btnRef}
-          href="/sign-in"
+          href="/dashboard"
           className="mt-4 px-8 py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl text-white font-semibold text-sm shadow-lg shadow-black/20 hover:bg-white/20 transition-colors cursor-pointer"
           style={{ x: btnX, y: btnY }}
           onMouseMove={handleBtnMouseMove}
