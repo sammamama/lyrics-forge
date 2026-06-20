@@ -1,14 +1,32 @@
 "use client";
 
 import Link from "next/link";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import { motion, useMotionTemplate, useMotionValue, useSpring, animate } from "motion/react";
 import { useEffect, useRef } from "react";
 import LandingWindow from "@/components/LandingWindow";
+import MarqueeBackground from "@/components/MarqueeBackground";
 
 const COLORS = ["#fca311", "#e29210", "#d4860a", "#c47a08", "#fca311"];
 
 export default function Home() {
   const color = useMotionValue(COLORS[0]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      touchMultiplier: 2,
+    });
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+    return () => lenis.destroy();
+  }, []);
 
   useEffect(() => {
     animate(color, COLORS, {
@@ -54,35 +72,40 @@ export default function Home() {
           Get Started
         </Link>
       </nav>
-      <div className="">
+      <div className="relative w-full">
+        <MarqueeBackground />
+
+        <div className="relative z-10">
+          <motion.div
+            className="text-7xl md:text-8xl font-extrabold mb-5"
+            initial={{ opacity: 0, y: 20, filter: "blur(20px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
+          </motion.div>
+          <motion.p
+            className="text-lg md:text-3xl italic text-white/80"
+            style={{ fontFamily: "var(--font-instrument-serif)" }}
+            initial={{ opacity: 0, y: 20, filter: "blur(20px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
+          >
+            Describe a vibe. Get original lyrics. <br />
+            Hit generate and hear your song come alive. <br />
+            No instruments needed — just your imagination.
+          </motion.p>
+        </div>
+
         <motion.div
-          className="text-7xl md:text-8xl font-extrabold mb-5"
-          initial={{ opacity: 0, y: 20, filter: "blur(20px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="w-full mt-16 relative z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
         >
-          <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
+          <LandingWindow />
         </motion.div>
-        <motion.p
-          className="text-sm md:text-xl italic text-white/80"
-          style={{ fontFamily: "var(--font-instrument-serif)" }}
-          initial={{ opacity: 0, y: 20, filter: "blur(20px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
-        >
-          Describe a vibe. Get original lyrics. <br />
-          Hit generate and hear your song come alive. <br />
-          No instruments needed — just your imagination.
-        </motion.p>
       </div>
-      <motion.div
-        className="w-full mt-16"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
-      >
-        <LandingWindow />
-      </motion.div>
 
       {/* Arch gradient CTA */}
       <motion.section

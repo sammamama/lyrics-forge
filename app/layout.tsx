@@ -54,7 +54,8 @@ export default function RootLayout({
     <html lang="en" className={`${poppins.variable} ${syne.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${spaceMono.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         {children}
-        <Toaster theme="dark" position="bottom-center" richColors />
+        <Toaster theme="dark" position="top-center" richColors offset={60} className="hidden md:block" />
+        <Toaster theme="dark" position="bottom-center" richColors className="block md:hidden" />
       </body>
     </html>
   );

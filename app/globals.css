@@ -1124,6 +1124,22 @@ body {
   }
 }
 
+/* ---------- Marquee background ---------- */
+
+@keyframes marquee-scroll-up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.marquee-track {
+  will-change: transform;
+  animation: marquee-scroll-up var(--marquee-duration, 30s) linear infinite;
+}
+
 .failed-state {
   display: flex;
   flex-direction: column;

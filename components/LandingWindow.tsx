@@ -1,9 +1,20 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useScroll, useTransform, useMotionTemplate, useMotionValueEvent } from "motion/react";
 import { toast } from "sonner";
 import LandingPlayer from "@/components/LandingPlayer";
+
+const PROMPTS = [
+  "Write a heartbreak song...",
+  "A rainy night ballad...",
+  "Song about cold beers...",
+  "Late night drive vibes...",
+  "Summer love gone wrong...",
+  "Dancing alone at 3am...",
+  "Missing you in Paris...",
+  "Sunset on the rooftop...",
+];
 
 export default function LandingWindow() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -12,11 +23,33 @@ export default function LandingWindow() {
     offset: ["start start", "end end"],
   });
 
-  // Step 1: prompt text (0–0.25), stays visible after
-  const promptOpacity = useTransform(scrollYProgress, [0, 0.25, 1], [0, 1, 1]);
-  const promptY = useTransform(scrollYProgress, [0, 0.25, 1], [20, 0, 0]);
-  const promptBlur = useTransform(scrollYProgress, [0, 0.25, 1], [20, 0, 0]);
-  const promptFilter = useMotionTemplate`blur(${promptBlur}px)`;
+  // Typing animation for prompt bar
+  const [displayText, setDisplayText] = useState("");
+  const [promptIndex, setPromptIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = PROMPTS[promptIndex];
+    let timeout: NodeJS.Timeout;
+
+    if (!isDeleting && displayText === current) {
+      timeout = setTimeout(() => setIsDeleting(true), 2000);
+    } else if (isDeleting && displayText === "") {
+      setIsDeleting(false);
+      setPromptIndex((prev) => (prev + 1) % PROMPTS.length);
+    } else {
+      const speed = isDeleting ? 40 : 70;
+      timeout = setTimeout(() => {
+        setDisplayText(
+          isDeleting
+            ? current.slice(0, displayText.length - 1)
+            : current.slice(0, displayText.length + 1)
+        );
+      }, speed);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, promptIndex]);
 
   // Step 2: send button processing (0.25–0.4), arrow returns after lyrics done
   const processingOpacity = useTransform(scrollYProgress, [0.25, 0.35, 0.65, 0.7], [0, 1, 1, 0]);
@@ -40,9 +73,9 @@ export default function LandingWindow() {
     prevProgress.current = v;
 
     let step = 0;
-    if (v >= 0.75) step = 3;
-    else if (v >= 0.4) step = 2;
-    else if (v >= 0.12) step = 1;
+    if (v >= 0.85) step = 3;
+    else if (v >= 0.5) step = 2;
+    else if (v >= 0.02) step = 1;
 
     if (step !== activeStep.current) {
       activeStep.current = step;
@@ -82,12 +115,10 @@ Don't leave me`;
 
   const promptBar = (
     <div className="relative mx-auto w-[90%] h-8 md:h-10 bg-neutral-700 rounded-xl flex-shrink-0">
-      <motion.div
-        className="flex w-full h-full px-3 md:px-5 text-xs md:text-sm justify-start font-thin items-center"
-        style={{ opacity: promptOpacity, y: promptY, filter: promptFilter }}
-      >
-        Write a heartbreak song...
-      </motion.div>
+      <div className="flex w-full h-full px-3 md:px-5 text-xs md:text-sm justify-start font-thin items-center">
+        <span>{displayText}</span>
+        <span className="inline-block w-[2px] h-4 bg-white/70 ml-0.5 animate-pulse" />
+      </div>
       <div className="absolute flex justify-center items-center right-2 md:right-3 w-6 md:w-7 h-6 md:h-7 top-1/2 -translate-y-1/2 bg-[var(--golden)] rounded-full">
         <motion.svg
           className="text-black absolute"
