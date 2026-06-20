@@ -131,8 +131,8 @@ export async function createSong(
       model: SUNO_MODEL,
       prompt: input.lyrics,
       style: input.stylePrompt,
-      // V4_5 caps titles at 80 chars.
       title: input.title.slice(0, 80),
+      callBackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/songs/callback`,
     }),
   });
   if (!data.taskId) {
