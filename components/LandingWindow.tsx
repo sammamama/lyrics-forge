@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useMotionTemplate, useMotionValueEvent } from "motion/react";
-import { toast } from "sonner";
 import LandingPlayer from "@/components/LandingPlayer";
 
 const PROMPTS = [
@@ -14,6 +13,12 @@ const PROMPTS = [
   "Dancing alone at 3am...",
   "Missing you in Paris...",
   "Sunset on the rooftop...",
+];
+
+const TIMELINE_STEPS = [
+  { number: "01", title: "Describe", description: "Describe your prompt for lyrics" },
+  { number: "02", title: "Set the feel", description: "Set the genre, mood and theme of the song" },
+  { number: "03", title: "Generate your song", description: "Hit generate and hear your track come alive" },
 ];
 
 export default function LandingWindow() {
@@ -65,28 +70,14 @@ export default function LandingWindow() {
   const playerOpacity = useTransform(scrollYProgress, [0.7, 1.0, 1], [0, 1, 1]);
   const playerY = useTransform(scrollYProgress, [0.7, 1.0, 1], [20, 0, 0]);
 
-  // Scroll-triggered toasts (forward and reverse)
-  const prevProgress = useRef(0);
-  const activeStep = useRef(0);
+  // Scroll-triggered timeline step
+  const [activeStep, setActiveStep] = useState(0);
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const scrollingDown = v > prevProgress.current;
-    prevProgress.current = v;
-
     let step = 0;
-    if (v >= 0.85) step = 3;
+    if (v >= 0.75) step = 3;
     else if (v >= 0.5) step = 2;
     else if (v >= 0.02) step = 1;
-
-    if (step !== activeStep.current) {
-      activeStep.current = step;
-      toast.dismiss();
-      const showToast = [
-        () => toast("Describe your song"),
-        () => toast.info("Get the lyrics"),
-        () => toast.success("Get the song"),
-      ];
-      if (step > 0) showToast[step - 1]();
-    }
+    setActiveStep(step);
   });
 
   const lyrics = `When the night falls slow
@@ -157,50 +148,92 @@ Don't leave me`;
     </motion.div>
   );
 
+  const timeline = (
+    <div className="hidden md:flex flex-col gap-10 w-55 shrink-0 pt-8">
+      {TIMELINE_STEPS.map((step, i) => {
+        const isActive = activeStep >= i + 1;
+        return (
+          <div key={step.number} className="relative pl-6 border-l-2 transition-colors duration-500" style={{ borderColor: isActive ? "var(--golden)" : "rgba(255,255,255,0.1)" }}>
+            <span
+              className="text-xs font-mono transition-colors duration-500"
+              style={{ color: isActive ? "var(--golden)" : "rgba(255,255,255,0.25)" }}
+            >
+              {step.number}
+            </span>
+            <h3
+              className="text-xl font-bold mt-1 transition-colors duration-500"
+              style={{
+                fontFamily: "var(--font-instrument-serif)",
+                color: isActive ? "#fafafa" : "rgba(255,255,255,0.3)",
+              }}
+            >
+              {step.title}
+            </h3>
+            <motion.p
+              className="text-sm font-thin mt-1 leading-snug overflow-hidden"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+              initial={false}
+              animate={{
+                height: isActive ? "auto" : 0,
+                opacity: isActive ? 1 : 0,
+              }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              {step.description}
+            </motion.p>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div ref={containerRef} className="relative h-[300vh] p-3">
       <div className="sticky top-[10vh]">
-        <div className="relative w-[90%] md:w-[80%] mx-auto border border-neutral-700 bg-neutral-800 rounded-xl overflow-hidden">
-          {/* Golden glow from bottom center */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-40 bg-[var(--golden)] opacity-25 blur-3xl rounded-full pointer-events-none" />
+        <div className="flex flex-row items-start justify-center gap-8">
+          {timeline}
+          <div className="relative w-[90%] md:w-full max-w-4xl border border-neutral-700 bg-neutral-800 rounded-xl overflow-hidden">
+            {/* Golden glow from bottom center */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-40 bg-[var(--golden)] opacity-25 blur-3xl rounded-full pointer-events-none" />
 
-          {/* Window chrome */}
-          <div className="flex flex-row gap-1.5 md:gap-2 w-full p-2.5 md:p-5">
-            <div className="bg-green-500 w-3 h-3 rounded-full"></div>
-            <div className="bg-yellow-500 w-3 h-3 rounded-full"></div>
-            <div className="bg-red-500 w-3 h-3 rounded-full"></div>
-          </div>
+            {/* Window chrome */}
+            <div className="flex flex-row gap-1.5 md:gap-2 w-full p-2.5 md:p-5">
+              <div className="bg-green-500 w-3 h-3 rounded-full"></div>
+              <div className="bg-yellow-500 w-3 h-3 rounded-full"></div>
+              <div className="bg-red-500 w-3 h-3 rounded-full"></div>
+            </div>
 
-          {/* Desktop: two-panel layout */}
-          <div className="hidden md:flex flex-row border-t border-neutral-600 h-[80vh]">
-            {/* Left panel */}
-            <div className="relative w-[30%] border-r border-neutral-600">
-              <div className="text-lg p-2 font-bold">
+            {/* Desktop: two-panel layout */}
+            <div className="hidden md:flex flex-row border-t border-neutral-600 h-[80vh]">
+              {/* Left panel */}
+              <div className="relative w-[30%] border-r border-neutral-600">
+                <div className="text-lg p-2 font-bold">
+                  <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
+                </div>
+                {lyricsBlock}
+                <div className="absolute bottom-0 left-0 w-full pb-3">
+                  {promptBar}
+                </div>
+              </div>
+              {/* Right panel */}
+              <div className="w-full bg-neutral-900 p-5 flex flex-col">
+                <div className="font-bold text-2xl">Your Songs</div>
+                <div className="flex-1 flex items-center justify-center">
+                  {playerBlock}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile: single-column layout */}
+            <div className="flex md:hidden flex-col border-t border-neutral-600">
+              <div className="text-sm p-2 font-bold">
                 <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
               </div>
+              {promptBar}
               {lyricsBlock}
-              <div className="absolute bottom-0 left-0 w-full pb-3">
-                {promptBar}
-              </div>
-            </div>
-            {/* Right panel */}
-            <div className="w-full bg-neutral-900 p-5 flex flex-col">
-              <div className="font-bold text-2xl">Your Songs</div>
-              <div className="flex-1 flex items-center justify-center">
+              <div className="border-t border-neutral-600">
                 {playerBlock}
               </div>
-            </div>
-          </div>
-
-          {/* Mobile: single-column layout */}
-          <div className="flex md:hidden flex-col border-t border-neutral-600">
-            <div className="text-sm p-2 font-bold">
-              <span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span>
-            </div>
-            {promptBar}
-            {lyricsBlock}
-            <div className="border-t border-neutral-600">
-              {playerBlock}
             </div>
           </div>
         </div>

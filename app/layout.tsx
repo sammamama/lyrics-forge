@@ -39,10 +39,67 @@ const inter = Inter({
   weight: ["300", "400", "500", "600"],
 });
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://lyricforge.xyz";
+
 export const metadata: Metadata = {
-  title: "LyricForge",
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: "LyricForge — AI Song Generator | Describe a Vibe, Get a Song",
+    template: "%s | LyricForge",
+  },
   description:
-    "Describe the vibe — get an original, fully produced song. AI-written lyrics rendered into real audio.",
+    "Describe the vibe, genre, and mood — LyricForge writes original lyrics with AI and renders a fully produced song. No instruments needed, just your imagination.",
+  keywords: [
+    "AI song generator",
+    "AI music generator",
+    "AI lyrics writer",
+    "create songs with AI",
+    "text to song",
+    "AI music maker",
+    "generate songs online",
+    "custom AI songs",
+    "LyricForge",
+  ],
+  authors: [{ name: "LyricForge" }],
+  creator: "LyricForge",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: APP_URL,
+    siteName: "LyricForge",
+    title: "LyricForge — Describe a Vibe, Get an Original Song",
+    description:
+      "AI-powered song creation. Describe your mood, pick a genre, and get a fully produced track with original lyrics in minutes.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "LyricForge — AI Song Generator",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LyricForge — AI Song Generator",
+    description:
+      "Describe a vibe. Get original lyrics. Hear your song come alive. No instruments needed.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: APP_URL,
+  },
 };
 
 export default function RootLayout({

@@ -60,8 +60,29 @@ export default function Home() {
     btnY.set(0);
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "LyricForge",
+    url: "https://lyricforge.xyz",
+    description:
+      "AI-powered song generator. Describe the vibe, genre, and mood — get original lyrics and a fully produced song.",
+    applicationCategory: "MultimediaApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "3.99",
+      priceCurrency: "USD",
+      description: "Credit packs starting at $3.99 for 5 songs",
+    },
+  };
+
   return (
     <div className="bg-background w-full min-h-screen px-5 md:px-16 pt-32 pb-0 flex flex-col items-start">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Glassmorphic navbar */}
       <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-5 py-2.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl shadow-lg shadow-black/20 w-[90%] max-w-md">
         <span className="text-sm font-semibold text-white"><span style={{ fontFamily: "var(--font-space-grotesk)" }}>Lyric</span><span className="text-primary font-normal italic" style={{ fontFamily: "var(--font-instrument-serif)" }}>Forge</span></span>
